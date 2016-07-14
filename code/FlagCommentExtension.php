@@ -15,6 +15,10 @@ class FlagCommentExtension extends DataExtension
 	 */
 	public function canFlag(Member $member = null)
 	{
+		if($this->owner->Flagged) {
+			return false;
+		}
+
 		$parent = $this->owner->getParent();
 		$comments = $parent->config()->comments;
 
@@ -30,11 +34,13 @@ class FlagCommentExtension extends DataExtension
 	 */
 	public function FlagLink()
 	{
-		return Controller::join_links(
+		$link = Controller::join_links(
 			'CommentingController',
 			'flagcomment',
 			$this->owner->ID
 		);
+
+		return HTTP::setGetVar('SecurityID', SecurityToken::inst()->getValue(), $link);
 	}
 
 	/**
@@ -48,18 +54,16 @@ class FlagCommentExtension extends DataExtension
 			return false;
 		}
 
-		if(!$this->owner->Flagged) {
-			$this->owner->Flagged = true;
-			try {
-				$this->owner->write();
-			} catch (Exception $e) {
-				SS_Log::log($e->getMessage(), SS_Log::WARN);
-				return false;
-			}
-
-			$this->notify();
+		$this->owner->Flagged = true;
+		try {
+			$this->owner->write();
+		} catch (ValidationException $e) {
+			SS_Log::log($e->getMessage(), SS_Log::WARN);
+			return false;
 		}
 
+		$this->owner->extend('afterFlag');
 		return true;
 	}
+
 }
