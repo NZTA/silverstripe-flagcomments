@@ -1,0 +1,14 @@
+{
+    "name": "micmania1/silverstripe-flagcomments",
+    "description": "Allow users to flag comments",
+    "type": "silverstripe-module",
+    "require": {
+        "silverstripe/comments": "^2.1.1"
+    },
+    "authors": [
+        {
+            "name": "micmania1",
+            "email": "mstrong@silverstripe.org"
+        }
+    ]
+}
