@@ -1,0 +1,11 @@
+CommentsExtension:
+  comments:
+    can_flag: false
+
+Comment:
+  extensions:
+    - 'FlagCommentExtension'
+
+CommentingController:
+  extensions:
+    - 'FlagCommentControllerExtension'
