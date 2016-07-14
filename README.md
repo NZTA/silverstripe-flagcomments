@@ -4,12 +4,15 @@ This module extends the comments module core functionality and adds the ability 
 
 When a comment has been flagged, it cannot be flagged by anyone else.
 
-# Installation
+## Installation
 
 `composer require micmania1/silverstripe-flagcomments`
 
-Assuming you've already added comments to your page (as per instructions)[https://github.com/silverstripe/silverstripe-comments/blob/master/docs/en/Configuration.md]
-than all you need to do is enable flagging via config and add controller extensions.
+
+## Configuration
+
+Assuming you've already added comments to your page [as per instructions](https://github.com/silverstripe/silverstripe-comments/blob/master/docs/en/Configuration.md)
+than all you need to do is enable flagging via config and add the flag to your template.
 
 ```
 SiteTree:
