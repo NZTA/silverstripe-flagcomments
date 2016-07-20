@@ -16,6 +16,8 @@ than all you need to do is enable flagging via config and add the flag to your t
 
 ```
 SiteTree:
+  extensions:
+    - 'FlagCommentsExtension'
   comments:
     can_flag: true
 ```

@@ -4,7 +4,20 @@ class FlagCommentExtension extends DataExtension
 {
 	private static $db = [
 		'Flagged' => 'Boolean',
+		'FlaggedAndRemoved' => 'Boolean',
+		'FlaggedSecurityToken' => 'Varchar(255)',
 	];
+
+	public function updateCMSFields(FieldList $fields)
+	{
+		$optionField = null;
+		foreach($fields as $field) {
+			if(get_class($field) == 'FieldGroup'  && $field->Name() == 'Options') {
+				$field->push(CheckboxField::create('Flagged', 'Flagged?'));
+				break;
+			}
+		}
+	}
 
 	/**
 	 * Checks if the given user can flag a comment
@@ -22,9 +35,9 @@ class FlagCommentExtension extends DataExtension
 		$parent = $this->owner->getParent();
 		$comments = $parent->config()->comments;
 
-		return isset($comments['can_flag']) 
-			&& $comments['can_flag'] 
-			&& $parent->canPostComment($member); 
+		return isset($comments['can_flag'])
+			&& $comments['can_flag']
+			&& $parent->canPostComment($member);
 	}
 
 	/**
@@ -44,7 +57,39 @@ class FlagCommentExtension extends DataExtension
 	}
 
 	/**
-	 * Flags the current coment
+	 * Returns a link to remove a flagged comment
+	 *
+	 * @return string
+	 */
+	public function RemoveFlaggedCommentLink()
+	{
+		$link = Controller::join_links(
+			'CommentingController',
+			'removeflaggedcomment',
+			$this->owner->ID
+		);
+
+		return HTTP::setGetVar('token', $this->owner->FlaggedSecurityToken, $link);
+	}
+
+	/**
+	 * Returns a link to unflag a comment
+	 *
+	 * @return string
+	 */
+	public function UnflagLink()
+	{
+		$link = Controller::join_links(
+			'CommentingController',
+			'unflagcomment',
+			$this->owner->ID
+		);
+
+		return HTTP::setGetVar('token', $this->owner->FlaggedSecurityToken, $link);
+	}
+
+	/**
+	 * Flags the current comment
 	 *
 	 * @return bool
 	 */
@@ -55,6 +100,11 @@ class FlagCommentExtension extends DataExtension
 		}
 
 		$this->owner->Flagged = true;
+		$this->owner->FlaggedAndRemoved = false;
+
+		$random = new RandomGenerator();
+		$this->owner->FlaggedSecurityToken = $random->randomToken();
+
 		try {
 			$this->owner->write();
 		} catch (ValidationException $e) {
@@ -66,4 +116,65 @@ class FlagCommentExtension extends DataExtension
 		return true;
 	}
 
+	/**
+	 * Remove the flag on a comment
+	 *
+	 * @return bool
+	 */
+	public function doUnflag()
+	{
+		if(!$this->owner->canEdit()) {
+			return false;
+		}
+
+		$this->owner->Flagged = false;
+		$this->owner->FlaggedAndRemoved = false;
+		$this->owner->FlaggedSecurityToken = null;
+		try {
+			$this->owner->write();
+		} catch (ValidationException $e) {
+			SS_Log::log($e->getMessage(), SS_Log::WARN);
+			return false;
+		}
+
+		$this->owner->extend('afterUnflag');
+		return true;
+	}
+
+	/**
+	 * Remove a comment which has been flagged
+	 *
+	 * @return bool
+	 */
+	public function doRemoveFlaggedComment()
+	{
+		if(!$this->owner->canEdit()) {
+			return false;
+		}
+
+		if(!$this->owner->Flagged) {
+			return false;
+		}
+
+		$this->owner->FlaggedAndRemoved = true;
+		$this->owner->FlaggedSecurityToken = null;
+		try {
+			$this->owner->write();
+		} catch (ValidationException $e) {
+			SS_Log::log($e->getMessage(), SS_Log::WARN);
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Filters flagged and removed replies
+	 *
+	 * @param SS_List $list
+	 */
+	public function updateReplies(SS_List $list)
+	{
+		$list = $list->filter('FlaggedAndRemoved', false);
+	}
 }
