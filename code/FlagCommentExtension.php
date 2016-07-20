@@ -173,7 +173,7 @@ class FlagCommentExtension extends DataExtension
 	 *
 	 * @param SS_List $list
 	 */
-	public function updateReplies(SS_List $list)
+	public function updateReplies(SS_List &$list)
 	{
 		$list = $list->filter('FlaggedAndRemoved', false);
 	}
