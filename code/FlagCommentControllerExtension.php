@@ -13,7 +13,7 @@ class FlagCommentControllerExtension extends Extension
 		'unflagcomment//$ID' => 'unflagComment',
 		'removeFlaggedComment//$ID' => 'removeFlaggedComment',
 	];
-		
+
 	public function flagComment(SS_HTTPRequest $request)
 	{
 		// Check Security ID
@@ -27,14 +27,19 @@ class FlagCommentControllerExtension extends Extension
 		}
 
 		if(!$comment->canFlag()) {
-			return $this->owner->httpError(403);
+			return Security::permissionFailure($this->owner);
 		}
-		
-		$response = $this->owner->getResponse();
-		$response->addHeader('Content-Type', 'application/json');
-		$response->setBody(json_encode(['flagged' => $comment->doFlag()]));
 
-		return $response;
+		$flagged = $comment->doFlag();
+		if($request->isAjax()) {
+			$response = $this->owner->getResponse();
+			$response->addHeader('Content-Type', 'application/json');
+			$response->setBody(json_encode(['flagged' => $flagged]));
+
+			return $response;
+		}
+
+		return $this->owner->redirect($comment->Link());
 	}
 
 	public function unflagComment(SS_HTTPRequest $request)
@@ -55,11 +60,16 @@ class FlagCommentControllerExtension extends Extension
 			return $this->owner->httpError(400);
 		}
 
-		$response = $this->owner->getResponse();
-		$response->addHeader('Content-Type', 'application/json');
-		$response->setBody(json_encode(['unflagged' => $comment->doUnflag()]));
+		$unflagged = $comment->doUnflag();
+		if($request->isAjax()) {
+			$response = $this->owner->getResponse();
+			$response->addHeader('Content-Type', 'application/json');
+			$response->setBody(json_encode(['unflagged' => $unflagged]));
 
-		return $response;
+			return $response;
+		}
+
+		return $this->owner->redirect($comment->Link());
 	}
 
 	public function removeFlaggedComment(SS_HTTPRequest $request)
@@ -80,11 +90,16 @@ class FlagCommentControllerExtension extends Extension
 			return $this->owner->httpError(400);
 		}
 
-		$response = $this->owner->getResponse();
-		$response->addHeader('Content-Type', 'application/json');
-		$response->setBody(json_encode(['removed' => $comment->doRemoveFlaggedComment()]));
+		$removed = $comment->doRemoveFlaggedComment();
+		if($request->isAjax()) {
+			$response = $this->owner->getResponse();
+			$response->addHeader('Content-Type', 'application/json');
+			$response->setBody(json_encode(['removed' => $removed]));
 
-		return $response;
+			return $response;
+		}
+
+		return $this->owner->redirect($comment->getParent()->Link());
 	}
 
 	protected function getComment(SS_HTTPRequest $request)
