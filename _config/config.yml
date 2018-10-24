@@ -1,3 +1,7 @@
+---
+Name: flagcommentsconfig
+---
+
 SilverStripe\Comments\Extensions\CommentsExtension:
   comments:
     can_flag: false
