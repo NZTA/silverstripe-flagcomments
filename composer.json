@@ -1,14 +1,16 @@
 {
-    "name": "micmania1/silverstripe-flagcomments",
+    "name": "nzta/silverstripe-flagcomments",
     "description": "Allow users to flag comments",
-    "type": "silverstripe-module",
+    "type": "silverstripe-vendormodule",
     "require": {
-        "silverstripe/comments": "^2.1.1"
+        "silverstripe/comments": "^4.2"
     },
     "authors": [
         {
             "name": "micmania1",
             "email": "mstrong@silverstripe.org"
         }
-    ]
+    ],
+    "prefer-stable": true,
+    "minimum-stability": "dev"
 }
