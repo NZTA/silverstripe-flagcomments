@@ -34,7 +34,7 @@ class FlagCommentControllerExtension extends Extension
 	 */
 	public function flagComment(HTTPRequest $request)
 	{
-		// Check Security ID
+        // Check Security ID
 		if(!SecurityToken::inst()->check($request->getVar('SecurityID'))) {
 			return $this->owner->httpError(400);
 		}
@@ -66,7 +66,7 @@ class FlagCommentControllerExtension extends Extension
 	 */
 	public function unflagComment(HTTPRequest $request)
 	{
-		$comment = $this->getComment($request);
+        $comment = $this->getComment($request);
 		if(!$comment) {
 			return $this->owner->httpError(404);
 		}

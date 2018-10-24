@@ -10,7 +10,7 @@ use SilverStripe\Security\SecurityToken;
 use SilverStripe\Control\HTTP;
 use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\GraphQL\Controller;
+use SilverStripe\Control\Controller;
 use SilverStripe\Security\RandomGenerator;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\ORM\SS_List;
@@ -52,9 +52,9 @@ class FlagCommentExtension extends DataExtension
 	{
 		if($this->owner->Flagged) {
 			return false;
-		}
+        }
 
-		$parent = $this->owner->getParent();
+        $parent = $this->owner->Parent();
 		$comments = $parent->config()->comments;
 
 		return isset($comments['can_flag'])
@@ -70,7 +70,7 @@ class FlagCommentExtension extends DataExtension
 	public function FlagLink()
 	{
 		$link = Controller::join_links(
-			'CommentingController',
+			'comments',
 			'flagcomment',
 			$this->owner->ID
 		);
@@ -86,7 +86,7 @@ class FlagCommentExtension extends DataExtension
 	public function RemoveFlaggedCommentLink()
 	{
 		$link = Controller::join_links(
-			'CommentingController',
+			'comments',
 			'removeflaggedcomment',
 			$this->owner->ID
 		);
@@ -102,7 +102,7 @@ class FlagCommentExtension extends DataExtension
 	public function UnflagLink()
 	{
 		$link = Controller::join_links(
-			'CommentingController',
+			'comments',
 			'unflagcomment',
 			$this->owner->ID
 		);
