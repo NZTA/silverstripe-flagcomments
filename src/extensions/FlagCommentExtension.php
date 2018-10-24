@@ -1,13 +1,35 @@
 <?php
 
+namespace NZTA\FlagComments\Extensions;
+
+use SilverStripe\ORM\DataExtension;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Security\Member;
+use SilverStripe\Security\SecurityToken;
+use SilverStripe\Control\HTTP;
+use Psr\Log\LoggerInterface;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\GraphQL\Controller;
+use SilverStripe\Security\RandomGenerator;
+use SilverStripe\ORM\ValidationException;
+use SilverStripe\ORM\SS_List;
+
 class FlagCommentExtension extends DataExtension
 {
+	/**
+	 * @var array
+	 */
 	private static $db = [
 		'Flagged' => 'Boolean',
 		'FlaggedAndRemoved' => 'Boolean',
 		'FlaggedSecurityToken' => 'Varchar(255)',
 	];
 
+	/**
+	 * @param FieldList $fields
+	 * @return void
+	 */
 	public function updateCMSFields(FieldList $fields)
 	{
 		$optionField = null;
@@ -108,7 +130,7 @@ class FlagCommentExtension extends DataExtension
 		try {
 			$this->owner->write();
 		} catch (ValidationException $e) {
-			SS_Log::log($e->getMessage(), SS_Log::WARN);
+			Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
 			return false;
 		}
 
@@ -133,7 +155,7 @@ class FlagCommentExtension extends DataExtension
 		try {
 			$this->owner->write();
 		} catch (ValidationException $e) {
-			SS_Log::log($e->getMessage(), SS_Log::WARN);
+			Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
 			return false;
 		}
 
@@ -161,7 +183,7 @@ class FlagCommentExtension extends DataExtension
 		try {
 			$this->owner->write();
 		} catch (ValidationException $e) {
-			SS_Log::log($e->getMessage(), SS_Log::WARN);
+			Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
 			return false;
 		}
 

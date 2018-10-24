@@ -1,20 +1,38 @@
 <?php
 
+namespace NZTA\FlagComments\Extensions;
+
+use SilverStripe\Core\Extension;
+use SilverStripe\Security\SecurityToken;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Security\Security;
+use SilverStripe\Comments\Model\Comment;
+
 class FlagCommentControllerExtension extends Extension
 {
+	/**
+	 * @var array
+	 */
 	private static $allowed_actions = [
 		'flagcomment',
 		'unflagcomment',
 		'removeflaggedcomment',
 	];
 
+	/**
+	 * @var array
+	 */
 	private static $url_handlers = [
 		'flagcomment//$ID!' => 'flagComment',
 		'unflagcomment//$ID' => 'unflagComment',
 		'removeFlaggedComment//$ID' => 'removeFlaggedComment',
 	];
 
-	public function flagComment(SS_HTTPRequest $request)
+	/**
+	 * @param HTTPRequest $request
+	 * @return void
+	 */
+	public function flagComment(HTTPRequest $request)
 	{
 		// Check Security ID
 		if(!SecurityToken::inst()->check($request->getVar('SecurityID'))) {
@@ -42,7 +60,11 @@ class FlagCommentControllerExtension extends Extension
 		return $this->owner->redirect($comment->Link());
 	}
 
-	public function unflagComment(SS_HTTPRequest $request)
+	/**
+	 * @param HTTPRequest $request
+	 * @return void
+	 */
+	public function unflagComment(HTTPRequest $request)
 	{
 		$comment = $this->getComment($request);
 		if(!$comment) {
@@ -72,7 +94,11 @@ class FlagCommentControllerExtension extends Extension
 		return $this->owner->redirect($comment->Link());
 	}
 
-	public function removeFlaggedComment(SS_HTTPRequest $request)
+	/**
+	 * @param HTTPRequest $request
+	 * @return void
+	 */
+	public function removeFlaggedComment(HTTPRequest $request)
 	{
 		$comment = $this->getComment($request);
 		if(!$comment) {
@@ -102,7 +128,11 @@ class FlagCommentControllerExtension extends Extension
 		return $this->owner->redirect($comment->getParent()->Link());
 	}
 
-	protected function getComment(SS_HTTPRequest $request)
+	/**
+	 * @param HTTPRequest $request
+	 * @return void
+	 */
+	protected function getComment(HTTPRequest $request)
 	{
 		$id = $request->param('ID');
 		if($id != (int) $id && $id > 0) {

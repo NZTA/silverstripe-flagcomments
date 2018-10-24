@@ -1,5 +1,10 @@
 <?php
 
+namespace NZTA\FlagComments\Extensions;
+
+use SilverStripe\ORM\DataExtension;
+use SilverStripe\ORM\SS_List;
+
 class FlagCommentsExtension extends DataExtension
 {
 	/**

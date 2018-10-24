@@ -3,7 +3,7 @@
     "description": "Allow users to flag comments",
     "type": "silverstripe-vendormodule",
     "require": {
-        "silverstripe/comments": "^4.2"
+        "silverstripe/comments": "^3.1"
     },
     "authors": [
         {

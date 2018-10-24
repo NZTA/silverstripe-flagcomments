@@ -4,9 +4,16 @@ This module extends the comments module core functionality and adds the ability 
 
 When a comment has been flagged, it cannot be flagged by anyone else.
 
+## Requirements
+
+- silverstripe/comments ^3.1
+- silverstripe/framework ^4.0
+
+Note: This branch is compatible with SilverStripe 4. For a SilverStripe 3 release, please see the 1.x release line.
+
 ## Installation
 
-`composer require micmania1/silverstripe-flagcomments`
+`composer require nzta/silverstripe-flagcomments`
 
 
 ## Configuration
@@ -15,9 +22,9 @@ Assuming you've already added comments to your page [as per instructions](https:
 than all you need to do is enable flagging via config and add the flag to your template.
 
 ```
-SiteTree:
+SilverStripe\CMS\Model\SiteTree:
   extensions:
-    - 'FlagCommentsExtension'
+    - 'NZTA\FlagComments\Extensions\FlagCommentsExtension'
   comments:
     can_flag: true
 ```
