@@ -4,7 +4,8 @@
     "type": "silverstripe-vendormodule",
     "license": "BSD-2-Clause",
     "require": {
-        "silverstripe/comments": "^3.1"
+        "silverstripe/comments": "^3.1",
+        "silverstripe/framework": "^4.2"
     },
     "authors": [
         {

@@ -17,186 +17,187 @@ use SilverStripe\ORM\SS_List;
 
 class FlagCommentExtension extends DataExtension
 {
-	/**
-	 * @var array
-	 */
-	private static $db = [
-		'Flagged' => 'Boolean',
-		'FlaggedAndRemoved' => 'Boolean',
-		'FlaggedSecurityToken' => 'Varchar(255)',
-	];
+    /**
+     * @var array
+     */
+    private static $db = [
+        'Flagged' => 'Boolean',
+        'FlaggedAndRemoved' => 'Boolean',
+        'FlaggedSecurityToken' => 'Varchar(255)',
+    ];
 
-	/**
-	 * @param FieldList $fields
-	 * @return void
-	 */
-	public function updateCMSFields(FieldList $fields)
-	{
-		$optionField = null;
-		foreach($fields as $field) {
-			if(get_class($field) == 'FieldGroup'  && $field->Name() == 'Options') {
-				$field->push(CheckboxField::create('Flagged', 'Flagged?'));
-				break;
-			}
-		}
-	}
+    /**
+     * @param FieldList $fields
+     *
+     * @return void
+     */
+    public function updateCMSFields(FieldList $fields)
+    {
+        $optionField = null;
+        foreach ($fields as $field) {
+            if (get_class($field) == 'FieldGroup'  && $field->Name() == 'Options') {
+                $field->push(CheckboxField::create('Flagged', 'Flagged?'));
+                break;
+            }
+        }
+    }
 
-	/**
-	 * Checks if the given user can flag a comment
-	 *
-	 * @param Member $member
-	 *
-	 * @return bool
-	 */
-	public function canFlag(Member $member = null)
-	{
-		if($this->owner->Flagged) {
-			return false;
+    /**
+     * Checks if the given user can flag a comment
+     *
+     * @param Member $member
+     *
+     * @return bool
+     */
+    public function canFlag(Member $member = null)
+    {
+        if ($this->owner->Flagged) {
+            return false;
         }
 
         $parent = $this->owner->Parent();
-		$comments = $parent->config()->comments;
+        $comments = $parent->config()->comments;
 
-		return isset($comments['can_flag'])
-			&& $comments['can_flag']
-			&& $parent->canPostComment($member);
-	}
+        return isset($comments['can_flag'])
+            && $comments['can_flag']
+            && $parent->canPostComment($member);
+    }
 
-	/**
-	 * Returns a link to flag the current comment
-	 *
-	 * @return string
-	 */
-	public function FlagLink()
-	{
-		$link = Controller::join_links(
-			'comments',
-			'flagcomment',
-			$this->owner->ID
-		);
+    /**
+     * Returns a link to flag the current comment
+     *
+     * @return string
+     */
+    public function FlagLink()
+    {
+        $link = Controller::join_links(
+            'comments',
+            'flagcomment',
+            $this->owner->ID
+        );
 
-		return HTTP::setGetVar('SecurityID', SecurityToken::inst()->getValue(), $link);
-	}
+        return HTTP::setGetVar('SecurityID', SecurityToken::inst()->getValue(), $link);
+    }
 
-	/**
-	 * Returns a link to remove a flagged comment
-	 *
-	 * @return string
-	 */
-	public function RemoveFlaggedCommentLink()
-	{
-		$link = Controller::join_links(
-			'comments',
-			'removeflaggedcomment',
-			$this->owner->ID
-		);
+    /**
+     * Returns a link to remove a flagged comment
+     *
+     * @return string
+     */
+    public function RemoveFlaggedCommentLink()
+    {
+        $link = Controller::join_links(
+            'comments',
+            'removeflaggedcomment',
+            $this->owner->ID
+        );
 
-		return HTTP::setGetVar('token', $this->owner->FlaggedSecurityToken, $link);
-	}
+        return HTTP::setGetVar('token', $this->owner->FlaggedSecurityToken, $link);
+    }
 
-	/**
-	 * Returns a link to unflag a comment
-	 *
-	 * @return string
-	 */
-	public function UnflagLink()
-	{
-		$link = Controller::join_links(
-			'comments',
-			'unflagcomment',
-			$this->owner->ID
-		);
+    /**
+     * Returns a link to unflag a comment
+     *
+     * @return string
+     */
+    public function UnflagLink()
+    {
+        $link = Controller::join_links(
+            'comments',
+            'unflagcomment',
+            $this->owner->ID
+        );
 
-		return HTTP::setGetVar('token', $this->owner->FlaggedSecurityToken, $link);
-	}
+        return HTTP::setGetVar('token', $this->owner->FlaggedSecurityToken, $link);
+    }
 
-	/**
-	 * Flags the current comment
-	 *
-	 * @return bool
-	 */
-	public function doFlag()
-	{
-		if(!$this->owner->canFlag()) {
-			return false;
-		}
+    /**
+     * Flags the current comment
+     *
+     * @return bool
+     */
+    public function doFlag()
+    {
+        if (!$this->owner->canFlag()) {
+            return false;
+        }
 
-		$this->owner->Flagged = true;
-		$this->owner->FlaggedAndRemoved = false;
+        $this->owner->Flagged = true;
+        $this->owner->FlaggedAndRemoved = false;
 
-		$random = new RandomGenerator();
-		$this->owner->FlaggedSecurityToken = $random->randomToken();
+        $random = new RandomGenerator();
+        $this->owner->FlaggedSecurityToken = $random->randomToken();
 
-		try {
-			$this->owner->write();
-		} catch (ValidationException $e) {
-			Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
-			return false;
-		}
+        try {
+            $this->owner->write();
+        } catch (ValidationException $e) {
+            Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
+            return false;
+        }
 
-		$this->owner->extend('afterFlag');
-		return true;
-	}
+        $this->owner->extend('afterFlag');
+        return true;
+    }
 
-	/**
-	 * Remove the flag on a comment
-	 *
-	 * @return bool
-	 */
-	public function doUnflag()
-	{
-		if(!$this->owner->canEdit()) {
-			return false;
-		}
+    /**
+     * Remove the flag on a comment
+     *
+     * @return bool
+     */
+    public function doUnflag()
+    {
+        if (!$this->owner->canEdit()) {
+            return false;
+        }
 
-		$this->owner->Flagged = false;
-		$this->owner->FlaggedAndRemoved = false;
-		$this->owner->FlaggedSecurityToken = null;
-		try {
-			$this->owner->write();
-		} catch (ValidationException $e) {
-			Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
-			return false;
-		}
+        $this->owner->Flagged = false;
+        $this->owner->FlaggedAndRemoved = false;
+        $this->owner->FlaggedSecurityToken = null;
+        try {
+            $this->owner->write();
+        } catch (ValidationException $e) {
+            Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
+            return false;
+        }
 
-		$this->owner->extend('afterUnflag');
-		return true;
-	}
+        $this->owner->extend('afterUnflag');
+        return true;
+    }
 
-	/**
-	 * Remove a comment which has been flagged
-	 *
-	 * @return bool
-	 */
-	public function doRemoveFlaggedComment()
-	{
-		if(!$this->owner->canEdit()) {
-			return false;
-		}
+    /**
+     * Remove a comment which has been flagged
+     *
+     * @return bool
+     */
+    public function doRemoveFlaggedComment()
+    {
+        if (!$this->owner->canEdit()) {
+            return false;
+        }
 
-		if(!$this->owner->Flagged) {
-			return false;
-		}
+        if (!$this->owner->Flagged) {
+            return false;
+        }
 
-		$this->owner->FlaggedAndRemoved = true;
-		$this->owner->FlaggedSecurityToken = null;
-		try {
-			$this->owner->write();
-		} catch (ValidationException $e) {
-			Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
-			return false;
-		}
+        $this->owner->FlaggedAndRemoved = true;
+        $this->owner->FlaggedSecurityToken = null;
+        try {
+            $this->owner->write();
+        } catch (ValidationException $e) {
+            Injector::inst()->get(LoggerInterface::class)->error($e->getMessage());
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * Filters flagged and removed replies
-	 *
-	 * @param SS_List $list
-	 */
-	public function updateReplies(SS_List &$list)
-	{
-		$list = $list->filter('FlaggedAndRemoved', false);
-	}
+    /**
+     * Filters flagged and removed replies
+     *
+     * @param SS_List $list
+     */
+    public function updateReplies(SS_List &$list)
+    {
+        $list = $list->filter('FlaggedAndRemoved', false);
+    }
 }
