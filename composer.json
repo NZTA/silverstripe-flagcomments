@@ -1,14 +1,23 @@
 {
-    "name": "micmania1/silverstripe-flagcomments",
+    "name": "nzta/silverstripe-flagcomments",
     "description": "Allow users to flag comments",
-    "type": "silverstripe-module",
+    "type": "silverstripe-vendormodule",
+    "license": "BSD-2-Clause",
     "require": {
-        "silverstripe/comments": "^2.1.1"
+        "silverstripe/comments": "^3.1",
+        "silverstripe/framework": "^4.2"
     },
     "authors": [
         {
             "name": "micmania1",
             "email": "mstrong@silverstripe.org"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-4": {
+            "NZTA\\FlagComments\\": "src/"
+        }
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev"
 }

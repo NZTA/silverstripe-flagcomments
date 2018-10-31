@@ -1,11 +1,15 @@
-CommentsExtension:
+---
+Name: flagcommentsconfig
+---
+
+SilverStripe\Comments\Extensions\CommentsExtension:
   comments:
     can_flag: false
 
-Comment:
+SilverStripe\Comments\Model\Comment:
   extensions:
-    - 'FlagCommentExtension'
+    - 'NZTA\FlagComments\Extensions\FlagCommentExtension'
 
-CommentingController:
+SilverStripe\Comments\Controllers\CommentingController:
   extensions:
-    - 'FlagCommentControllerExtension'
+    - 'NZTA\FlagComments\Extensions\FlagCommentControllerExtension'
